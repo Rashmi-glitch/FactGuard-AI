@@ -3,6 +3,7 @@ import pdfplumber
 import json
 import re
 import time
+import os
 from anthropic import Anthropic
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
@@ -131,7 +132,8 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ─── Anthropic Client ─────────────────────────────────────────────────────────
-client = Anthropic()
+api_key = st.secrets.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
+client = Anthropic(api_key=api_key)
 
 # ─── Helper: Extract Text from PDF ──────────────────────────────────────────
 def extract_pdf_text(uploaded_file) -> str:
