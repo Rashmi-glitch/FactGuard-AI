@@ -4,7 +4,7 @@ import json
 import re
 import time
 import os
-from anthropic import Anthropic
+from google import genai
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -132,8 +132,9 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ─── Anthropic Client ─────────────────────────────────────────────────────────
-api_key = st.secrets.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
-client = Anthropic(api_key=api_key)
+api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+
+client = genai.Client(api_key=api_key)
 
 # ─── Helper: Extract Text from PDF ──────────────────────────────────────────
 def extract_pdf_text(uploaded_file) -> str:
