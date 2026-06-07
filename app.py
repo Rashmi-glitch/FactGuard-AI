@@ -4,8 +4,7 @@ import json
 import re
 import time
 import os
-from google import genai
-from google.genai import types
+from anthropic import Anthropic
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -133,9 +132,7 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ─── Anthropic Client ─────────────────────────────────────────────────────────
-api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-
-client = genai.Client(api_key=api_key)
+client = Anthropic()
 
 # ─── Helper: Extract Text from PDF ──────────────────────────────────────────
 def extract_pdf_text(uploaded_file) -> str:
@@ -168,12 +165,12 @@ Text to analyze:
 
 Return ONLY the JSON array, no markdown, no explanation."""
 
-    response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=prompt
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=2000,
+        messages=[{"role": "user", "content": prompt}]
     )
-
-    raw = response.text.strip() 
+    raw = response.content[0].text.strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
     return json.loads(raw)
@@ -208,18 +205,13 @@ Status definitions:
 
 Return ONLY the JSON object."""
 
-response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[types.Tool(google_search=types.GoogleSearch())]
-        )
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=600,
+        tools=[{"type": "web_search_20250305", "name": "web_search"}],
+        messages=[{"role": "user", "content": prompt}]
     )
 
-    result_text = response.text.strip()
-    result_text = re.sub(r"^```json\s*", "", result_text)
-    result_text = re.sub(r"\s*```$", "", result_text)
-    
     # Extract text from response (may include tool_use blocks)
     result_text = ""
     for block in response.content:
