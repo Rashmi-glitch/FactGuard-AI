@@ -6,7 +6,6 @@ import time
 import os
 from google import genai
 from google.genai import types
-pip install -U google-genai
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
